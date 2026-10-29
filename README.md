@@ -4,6 +4,10 @@
 
 ## 실행
 
+바로 하기: **https://spadebyte.github.io/30-Years/**
+
+내 컴퓨터에서 열기:
+
 ```bash
 python -m http.server 8765 --directory game
 ```
