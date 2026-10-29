@@ -3,6 +3,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>군수의 30년</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0f1513">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="군수의 30년">
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -1216,5 +1223,10 @@ td.up { color: var(--ok); } td.down { color: var(--danger); }
 
   newGame();
   if (!tour.seen) tour.open();
+
+  // 홈 화면에 설치한 앱으로 쓸 수 있게 서비스 워커를 등록한다 (https 주소에서만, 막혀 있으면 그냥 넘어감)
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
 })();
 </script>

@@ -1,0 +1,17 @@
+{
+  "name": "군수의 30년",
+  "short_name": "군수의 30년",
+  "description": "소멸 고위험 군의 군수가 되어 30년 동안 스마트 기술 예산을 나누는 인구 시뮬레이션 게임",
+  "lang": "ko",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f1513",
+  "theme_color": "#0f1513",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
