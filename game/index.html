@@ -1,0 +1,1218 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>군수의 30년</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=IBM+Plex+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* 레이아웃: 위에 연도·조작, 가운데 '불 켜진 마을'과 예산판, 아래로 그래프·기록·실험·검증이 이어지는 군청 상황판 */
+:root {
+  --bg: #e9eee8;
+  --surface: #f8faf6;
+  --ink: #18231d;
+  --muted: #586a5f;
+  --line: #cdd8cf;
+  --field: #2f6b4f;
+  --lamp: #d98e1f;
+  --night: #1d2a33;
+  --danger: #b0413a;
+  --ok: #2f7a4f;
+  --base: #8a6fb0;
+  --font-display: "Black Han Sans", "IBM Plex Sans KR", "Malgun Gothic", sans-serif;
+  --font-body: "IBM Plex Sans KR", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1513; --surface: #17201c; --ink: #e3eae5; --muted: #95a69b; --line: #2b3832;
+    --field: #6fbf95; --lamp: #f2b84b; --night: #0a1116; --danger: #e47c70; --ok: #72c790; --base: #b39ad9;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1513; --surface: #17201c; --ink: #e3eae5; --muted: #95a69b; --line: #2b3832;
+  --field: #6fbf95; --lamp: #f2b84b; --night: #0a1116; --danger: #e47c70; --ok: #72c790; --base: #b39ad9;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 48px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+h1, h2 { font-family: var(--font-display); font-weight: 400; letter-spacing: .01em; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(26px, 4vw, 36px); line-height: 1.1; }
+h2 { font-size: 22px; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+button, select, input { font: inherit; color: inherit; }
+button {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; cursor: pointer;
+}
+button:hover { border-color: var(--field); }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--lamp); outline-offset: 2px; }
+button.primary { background: var(--field); color: var(--surface); border-color: var(--field); font-weight: 700; }
+button[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+
+/* 상단 */
+.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; }
+.title-block { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.county { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.county input { background: transparent; border: 0; border-bottom: 1px dashed var(--muted); width: 9em; padding: 0 2px; font-weight: 700; }
+.clock { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.year { font-family: var(--font-display); font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; }
+.year small { font-family: var(--font-body); font-size: 13px; color: var(--muted); margin-left: 6px; }
+.speed { display: flex; gap: 4px; }
+
+/* 마을 + 예산 */
+/* 마을·예산·그래프·일지를 한 격자에 놓는다. 넓은 화면에서는 일지가 오른쪽 세로 한 줄을 다 쓴다 */
+.main { display: grid; gap: 20px; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  grid-template-areas: "village budget" "chart log"; }
+.board, .row2 { display: contents; }
+.area-village { grid-area: village; } .area-budget { grid-area: budget; }
+.area-chart { grid-area: chart; } .area-log { grid-area: log; }
+@media (min-width: 1240px) {
+  .wrap { max-width: 1480px; }
+  .main { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, .8fr);
+    grid-template-areas: "village budget log" "chart chart log"; }
+  /* 일지 길이가 줄 높이를 늘리지 않게 하고, 남는 높이를 다 채운다 */
+  .area-log { contain: size; }
+  .area-log .log { max-height: none; flex: 1; min-height: 0; }
+}
+@media (max-width: 820px) {
+  .main { grid-template-columns: minmax(0, 1fr); grid-template-areas: "village" "budget" "chart" "log"; }
+}
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.village { position: relative; border-radius: 8px; overflow: hidden; background: var(--night); aspect-ratio: 16 / 9; max-width: 100%; }
+.village canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.village .caption { position: absolute; left: 12px; bottom: 10px; color: #f3ead6; font-size: 12px; text-shadow: 0 1px 2px #000; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.stat { display: flex; flex-direction: column; gap: 2px; padding: 8px 10px; border-left: 3px solid var(--line); }
+.stat .label { font-size: 12px; color: var(--muted); letter-spacing: .02em; }
+.stat .value { font-family: var(--font-data); font-size: 20px; font-variant-numeric: tabular-nums; }
+.stat .delta { font-size: 12px; font-family: var(--font-data); }
+.pill { display: inline-block; font-size: 12px; padding: 1px 8px; border-radius: 99px; font-weight: 700; }
+.pill.danger { background: color-mix(in srgb, var(--danger) 18%, transparent); color: var(--danger); }
+.pill.warn { background: color-mix(in srgb, var(--lamp) 22%, transparent); color: var(--lamp); }
+.up { color: var(--ok); } .down { color: var(--danger); }
+
+/* 예산 조정 버튼: 시간이 흐를 때는 등불색 큰 버튼, 조정 중에는 초록 '완료' 버튼 */
+.edit-budget {
+  width: 100%; padding: 12px 16px; font-size: 16px; font-weight: 700; border-radius: 8px;
+  background: var(--lamp); border: 2px solid var(--lamp); color: var(--night);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--lamp) 60%, transparent);
+  animation: pulse 2s ease-out infinite;
+}
+.edit-budget:hover { filter: brightness(1.06); border-color: var(--lamp); }
+.edit-budget.editing { background: var(--field); border-color: var(--field); color: var(--surface); animation: none; }
+.edit-budget:disabled { background: transparent; color: var(--muted); border: 1px dashed var(--line); font-size: 14px; font-weight: 500; cursor: default; animation: none; filter: none; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--lamp) 55%, transparent); } 70%, 100% { box-shadow: 0 0 0 10px transparent; } }
+@media (prefers-reduced-motion: reduce) { .edit-budget { animation: none; } }
+body.running .stepper button { opacity: .35; pointer-events: none; }
+.budget-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.left-pts { font-family: var(--font-data); }
+.policy { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; padding-block: 8px; border-top: 1px solid var(--line); }
+.policy .name { font-weight: 700; }
+.policy .tech { font-size: 12px; color: var(--muted); }
+.stepper { display: flex; align-items: center; gap: 6px; }
+.stepper button { width: 32px; height: 32px; padding: 0; font-size: 18px; line-height: 1; }
+.stepper .num { width: 2ch; text-align: center; font-size: 18px; }
+.bar { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(10, 1fr); gap: 3px; }
+.bar i { height: 6px; border-radius: 2px; background: var(--line); }
+.bar i.on { background: var(--field); }
+.bar i.ramp { background: color-mix(in srgb, var(--field) 45%, var(--line)); }
+.opts { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding-left: 12px; border-left: 1px solid var(--line); font-size: 13px; }
+.opts label { display: flex; align-items: center; gap: 6px; }
+.opts select { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+@media (max-width: 820px) { .opts { padding-left: 0; border-left: 0; } }
+
+/* 그래프 + 기록 */
+.chart-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+svg.chart { width: 100%; height: auto; display: block; }
+svg.chart text { fill: var(--muted); font-family: var(--font-data); font-size: 11px; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 14px; height: 3px; margin-right: 6px; vertical-align: middle; background: var(--c); }
+.log { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; max-height: 340px; overflow-y: auto; }
+.log li { display: grid; grid-template-columns: 3.2em 1fr; gap: 8px; font-size: 14px; }
+.log .y { font-family: var(--font-data); color: var(--muted); }
+.log li.bad .t { color: var(--danger); }
+.log li.good .t { color: var(--ok); }
+
+/* 표 */
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { padding: 6px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; font-variant-numeric: tabular-nums; }
+th:first-child, td:first-child { text-align: left; }
+th { font-size: 12px; color: var(--muted); font-weight: 500; }
+td.best { color: var(--ok); font-weight: 700; }
+.range { display: block; font-size: 11px; color: var(--muted); }
+.tests { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.test { border: 1px solid var(--line); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+.test .big { font-family: var(--font-data); font-size: 26px; }
+ul.notes { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
+a { color: var(--field); }
+
+/* AI */
+.ai-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ai-controls select { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 5px 8px; }
+.ai-result { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.ai-block { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+.ai-block .period { font-family: var(--font-data); font-size: 13px; color: var(--muted); }
+.ai-block .split { display: flex; height: 10px; border-radius: 3px; overflow: hidden; background: var(--line); }
+.ai-block .split i { display: block; height: 100%; }
+.ai-block .parts { font-size: 13px; display: flex; gap: 10px; flex-wrap: wrap; }
+.ai-block .parts span::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 4px; background: var(--c); }
+.ai-summary { grid-column: 1 / -1; font-size: 14px; }
+.badge-ai { display: inline-block; font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 99px; background: var(--ink); color: var(--surface); margin-left: 8px; vertical-align: middle; }
+body.ai-playing .stepper button { opacity: .4; pointer-events: none; }
+
+/* 선택 이벤트 */
+.choice-overlay {
+  position: fixed; inset: 0; z-index: 20; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--night) 70%, transparent);
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.choice-card {
+  background: var(--surface); border: 2px solid var(--lamp); border-radius: 12px; padding: 20px;
+  width: min(560px, 100%); max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+}
+.choice-year { color: var(--lamp); font-size: 14px; }
+.choice-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+button.choice { text-align: left; display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--line); }
+button.choice:hover, button.choice:focus-visible { border-color: var(--lamp); background: color-mix(in srgb, var(--lamp) 10%, var(--surface)); }
+button.choice b { font-size: 16px; }
+button.choice span { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.log li.pick .t { color: var(--lamp); }
+
+.source-link { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.source-link > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1 1 320px; }
+.source-btn { display: inline-block; border: 0; cursor: pointer; padding: 10px 16px; border-radius: 8px; background: var(--field); color: var(--surface); font-weight: 700; text-decoration: none; }
+.source-btn:hover { filter: brightness(1.08); }
+
+/* 처음 안내 (tour.js): 용어는 가운데 카드, 화면 부분은 밝게 비추고 옆에 설명 카드 */
+.help-btn { font-weight: 700; }
+.tour { position: fixed; inset: 0; z-index: 40; }
+.tour-shade { position: fixed; inset: 0; background: color-mix(in srgb, var(--night) 72%, transparent); }
+.tour-spot { position: fixed; border-radius: 12px; border: 2px solid var(--lamp); pointer-events: none;
+  box-shadow: 0 0 0 9999px color-mix(in srgb, var(--night) 72%, transparent); transition: left .25s, top .25s, width .25s, height .25s; }
+.tour-card { position: fixed; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px;
+  display: flex; flex-direction: column; gap: 10px; box-shadow: 0 12px 40px rgba(0, 0, 0, .35); }
+.tour-card.center { left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(580px, calc(100vw - 32px)); max-height: calc(100vh - 40px); }
+.tour-card.center.wide { width: min(780px, calc(100vw - 32px)); }
+.tour-card.float { width: min(380px, calc(100vw - 32px)); max-height: calc(100vh - 24px); }
+.tour-card.dock { left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); bottom: max(12px, env(safe-area-inset-bottom, 0px)); max-height: 55vh; }
+.tour-card h2 { font-size: 24px; }
+.tour-card h3 { font-size: 16px; margin: 6px 0 0; }
+.tour-body { overflow-y: auto; min-height: 0; display: flex; flex-direction: column; gap: 10px; font-size: 15px; }
+.tour-nav { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; border-top: 1px solid var(--line); padding-top: 12px; }
+.tour-skip { border: 0; background: transparent; color: var(--muted); padding-inline: 4px; }
+.tour-dots { order: -1; flex-basis: 100%; display: flex; gap: 5px; justify-content: center; }
+.tour-skip { margin-right: auto; }
+.tour-dots i { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+.tour-dots i.on { background: var(--lamp); }
+.t-formula { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 15px; }
+.t-formula span, .t-formula b { padding: 6px 12px; border-radius: 6px; background: color-mix(in srgb, var(--muted) 12%, transparent); }
+.t-formula b { background: var(--lamp); color: var(--night); }
+.t-formula i { font-style: normal; font-size: 20px; color: var(--muted); }
+.t-bands { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+@media (max-width: 560px) { .t-bands { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.t-band { padding: 6px 8px; border-radius: 6px; display: flex; flex-direction: column; font-size: 12px; }
+.t-band b { font-size: 13px; }
+.t-band.ok { background: color-mix(in srgb, var(--ok) 16%, transparent); }
+.t-band.warn { background: color-mix(in srgb, var(--lamp) 20%, transparent); }
+.t-band.danger { background: color-mix(in srgb, var(--danger) 16%, transparent); }
+.t-regions { display: flex; flex-direction: column; gap: 4px; }
+.t-region { display: grid; grid-template-columns: minmax(0, 13em) minmax(0, 1fr) 3.4em; gap: 10px; align-items: center; font-size: 13px; padding: 2px 6px; border-radius: 6px; }
+.t-region small { display: block; color: var(--muted); font-size: 11px; line-height: 1.3; }
+.t-region .t-bar { height: 10px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.t-region .t-bar i { display: block; height: 100%; }
+.t-region .t-bar i.ok { background: var(--ok); } .t-region .t-bar i.warn { background: var(--lamp); } .t-region .t-bar i.danger { background: var(--danger); }
+.t-region .v { text-align: right; }
+.t-region.me { background: color-mix(in srgb, var(--lamp) 16%, transparent); font-weight: 700; }
+.t-region.avg { border: 1px dashed var(--line); }
+.c-muted { color: var(--muted); } .c-base { color: var(--base); } .c-lamp { color: var(--lamp); } .c-ok { color: var(--ok); } .c-danger { color: var(--danger); }
+
+/* 출처와 원리: 같은 페이지 안에서 화면 전체로 연다 (explain.html을 안에 띄움) */
+.sources-view { position: fixed; inset: 0; z-index: 35; display: flex; flex-direction: column; background: var(--bg); }
+.sources-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-bottom: 1px solid var(--line);
+  padding: max(10px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); }
+.sources-bar b { font-family: var(--font-display); font-weight: 400; font-size: 20px; }
+.sources-view iframe { flex: 1; width: 100%; border: 0; background: var(--bg); }
+
+/* 선택 이벤트 삽화 (art.js) */
+.event-art { width: 100%; height: auto; display: block; border-radius: 8px; max-width: 100%; }
+.choice-card .event-art { margin-bottom: 2px; }
+.r-slide .event-art { max-height: 46vh; object-fit: cover; }
+
+.ch-basis { font-size: 13px; color: var(--muted); border-left: 3px solid var(--line); padding-left: 10px; }
+
+/* 결과 화면: 페이지 전체를 덮고, 한 화면에 한 가지씩 보여 준다 */
+.result-overlay {
+  position: fixed; inset: 0; z-index: 30; overflow-y: auto; background: var(--bg);
+  padding: max(20px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(20px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.result-inner { max-width: 860px; min-height: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+.result-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.r-slide { flex: 1; display: flex; flex-direction: column; gap: 14px; }
+.r-slide h2 { font-size: clamp(26px, 4vw, 36px); }
+.r-slide h3 { font-size: 18px; margin: 8px 0 0; }
+.r-slide.in { animation: slideIn .35s ease-out; }
+@keyframes slideIn { from { opacity: .2; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+.eyebrow { font-family: var(--font-data); font-size: 13px; color: var(--lamp); letter-spacing: .04em; }
+.r-hero { display: flex; flex-direction: column; gap: 14px; align-items: flex-start; padding-block: 4vh 0; }
+.r-grade { font-family: var(--font-display); font-size: clamp(96px, 18vw, 160px); line-height: .9; color: var(--lamp); }
+.opt-compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.opt-card { border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 8px; background: var(--surface); }
+.opt-card.mine { border: 2px solid var(--ink); }
+.opt-card.best { box-shadow: 0 0 0 3px color-mix(in srgb, var(--ok) 45%, transparent); }
+.opt-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.tag { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: color-mix(in srgb, var(--muted) 16%, transparent); color: var(--muted); }
+.tag.mine { background: var(--ink); color: var(--surface); }
+.tag.best { background: var(--ok); color: var(--surface); }
+.opt-label { font-size: 19px; }
+.opt-res { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 6px 0 0; border-top: 1px solid var(--line); padding-top: 10px; }
+.opt-res dt { font-size: 12px; color: var(--muted); }
+.opt-res dd { margin: 0; font-size: 17px; }
+.verdict { font-size: 17px; padding: 12px 14px; border-radius: 8px; background: color-mix(in srgb, var(--muted) 10%, transparent); }
+.verdict.good { background: color-mix(in srgb, var(--ok) 14%, transparent); }
+.verdict.bad { background: color-mix(in srgb, var(--danger) 12%, transparent); }
+.result-nav { display: flex; justify-content: space-between; align-items: center; gap: 12px; position: sticky; bottom: 0; background: var(--bg); padding-block: 10px; border-top: 1px solid var(--line); }
+.result-nav > button { min-width: 6.5em; }
+.dots { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+.dot { width: 10px; height: 10px; padding: 0; border-radius: 50%; background: var(--line); border: 0; }
+.dot.on { background: var(--lamp); }
+.nav-end { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.reopen { align-self: flex-start; font-weight: 700; }
+@media (prefers-reduced-motion: reduce) { .r-slide.in { animation: none; } }
+
+/* 내 임기 돌아보기 */
+.review { display: flex; flex-direction: column; gap: 12px; border-top: 1px solid var(--line); padding-top: 16px; margin-top: 4px; }
+.review:empty { display: none; }
+.review h3 { font-size: 16px; margin: 8px 0 0; }
+.highlights { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; }
+.highlights > div { display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.highlights b { font-size: 17px; }
+.pill.good { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+.pill { background: color-mix(in srgb, var(--muted) 15%, transparent); color: var(--muted); }
+.fields { display: flex; flex-direction: column; gap: 8px; }
+.field-row { display: grid; grid-template-columns: 7.5em minmax(0, 1fr) 8em; gap: 12px; align-items: center; }
+.fbar { height: 12px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.fbar i { display: block; height: 100%; }
+.fbar i.pos { background: var(--ok); } .fbar i.neg { background: var(--danger); }
+.fval { text-align: right; }
+td.up { color: var(--ok); } td.down { color: var(--danger); }
+.review .ai-block .split { margin-bottom: 4px; }
+
+/* 결과 카드 */
+.end-scores { display: flex; gap: 18px; flex-wrap: wrap; align-items: baseline; font-size: 14px; }
+.end-scores b { font-size: 26px; color: var(--lamp); margin-right: 2px; }
+.ending[hidden] { display: none; }
+.ending { border: 2px solid var(--lamp); }
+.grade { font-family: var(--font-display); font-size: 64px; line-height: 1; color: var(--lamp); }
+.ending-grid { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center; }
+@media (max-width: 520px) { .ending-grid { grid-template-columns: 1fr; } }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="title-block">
+      <h1>군수의 30년</h1>
+      <div class="county muted small">
+        <span>당신은</span>
+        <label for="countyName" class="sr" hidden>군 이름</label>
+        <input id="countyName" value="청솔군" maxlength="8" aria-label="군 이름">
+        <span>군수입니다. 2055년까지 불빛을 지켜 주세요.</span>
+      </div>
+    </div>
+    <div class="clock">
+      <div class="year"><span id="year" class="num">2025</span><small id="yearLeft">30년 남음</small></div>
+      <button id="play" class="primary">▶ 시작</button>
+      <div class="speed" role="group" aria-label="속도">
+        <button data-speed="1" aria-pressed="true">1×</button>
+        <button data-speed="2" aria-pressed="false">2×</button>
+        <button data-speed="4" aria-pressed="false">4×</button>
+      </div>
+      <button id="stepBtn">1년 진행</button>
+      <button id="reset">처음부터</button>
+      <button id="help" class="help-btn">? 안내</button>
+      <div class="opts">
+        <label for="level">정책 효과 가정
+          <select id="level">
+            <option value="low">비관 (효과 절반)</option>
+            <option value="mid" selected>보통</option>
+            <option value="high">낙관 (효과 1.6배)</option>
+          </select>
+        </label>
+        <label for="scenario" title="지금 추세: 2020~2025년 주민등록 이동이 그대로 이어짐(과거 재현으로 검증). 공식 추계: 전북 시군 장래인구추계처럼 들어오는 사람이 늘어남">이동 가정
+          <select id="scenario">
+            <option value="trend" selected>지금 추세</option>
+            <option value="official">공식 추계</option>
+          </select>
+        </label>
+        <label for="spiral" title="청년이 줄수록 버스·병원·상권이 줄어 이탈이 빨라진다는 가정"><input type="checkbox" id="spiral"> 악순환 효과</label>
+      </div>
+    </div>
+  </header>
+
+  <section class="panel ending" id="ending" hidden>
+    <div class="ending-grid">
+      <div class="grade" id="grade">A</div>
+      <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+        <h2 id="endTitle">2055년, 30년의 임기가 끝났어요</h2>
+        <div class="end-scores" id="endScores"></div>
+        <p id="endText"></p>
+        <p class="small muted" id="endRange"></p>
+      </div>
+    </div>
+    <button id="reopen" class="reopen">결과 화면 다시 보기 ▶</button>
+  </section>
+
+  <div class="main">
+  <section class="board">
+    <div class="panel area-village">
+      <div class="village">
+        <canvas id="village" aria-label="마을 불빛 지도: 불 켜진 집 하나는 주민 약 100명"></canvas>
+        <div class="caption">불 켜진 집 하나 = 주민 약 100명</div>
+      </div>
+      <div class="stats">
+        <div class="stat"><span class="label">총인구</span><span class="value" id="sTotal">-</span><span class="delta" id="dTotal"></span></div>
+        <div class="stat"><span class="label">소멸위험지수</span><span class="value" id="sIndex">-</span><span id="sGrade"></span></div>
+        <div class="stat"><span class="label">청년 (20~39세)</span><span class="value" id="sYoung">-</span><span class="delta" id="dYoung"></span></div>
+        <div class="stat"><span class="label">어린이 (0~14세)</span><span class="value" id="sKids">-</span><span class="delta" id="dKids"></span></div>
+        <div class="stat"><span class="label">65세 이상 비율</span><span class="value" id="sOld">-</span></div>
+      </div>
+    </div>
+
+    <div class="panel area-budget">
+      <div class="budget-head">
+        <h2>올해 스마트 기술 예산</h2>
+        <span class="left-pts small">남은 예산 <b id="left">0</b> / <span id="budgetTotal">10</span></span>
+      </div>
+      <button id="editBudget" class="edit-budget">⏸ 예산 조정</button>
+      <p class="small muted">1포인트는 연 10억 원이라고 가정해요. 효과는 최근 3년 평균 투자만큼 서서히 나타나요. 옅은 칸은 아직 자리 잡는 중인 효과예요.</p>
+      <div id="policies"></div>
+    </div>
+  </section>
+
+  <section class="row2">
+    <div class="panel area-chart">
+      <div class="chart-head">
+        <h2>인구 곡선</h2>
+        <div class="tabs" role="group" aria-label="그래프 지표">
+          <button data-metric="total" aria-pressed="true">총인구</button>
+          <button data-metric="young" aria-pressed="false">청년</button>
+          <button data-metric="index" aria-pressed="false">소멸위험지수</button>
+        </div>
+      </div>
+      <svg class="chart" id="chart" viewBox="0 0 640 280" role="img" aria-label="연도별 인구 그래프"></svg>
+      <div class="legend">
+        <span style="--c: var(--muted)">실제 (2010~2025, 7개 군 평균)</span>
+        <span style="--c: var(--base)">정책 없음 (모델 예측)</span>
+        <span style="--c: var(--lamp)">우리 군</span>
+      </div>
+    </div>
+    <div class="panel area-log">
+      <h2>군정 일지</h2>
+      <ul class="log" id="log"></ul>
+    </div>
+  </section>
+  </div>
+
+  <section class="panel ai">
+    <div class="chart-head">
+      <h2>AI 군수에게 맡기기</h2>
+      <div class="ai-controls">
+        <label for="aiGoal" class="small">AI의 목표</label>
+        <select id="aiGoal">
+          <option value="young" selected>청년(20~39세)을 가장 많이</option>
+          <option value="total">총인구를 가장 많이</option>
+          <option value="index">소멸위험지수를 가장 높게</option>
+        </select>
+        <button id="aiRun" class="primary">AI 플레이 시작</button>
+      </div>
+    </div>
+    <p class="small muted">AI는 10포인트를 나누는 286가지 방법을 모두 시험해요. 그다음 30년을 10년씩 세 구간으로 나눠, 구간마다 배분을 바꿔 보며 더 좋아지면 채택해요. 위에서 고른 가정(비관·보통·낙관, 악순환)을 그대로 써요. 랜덤 변동 없이 평균 경로로 계획을 세우고, 실제 플레이에서는 랜덤 변동이 그대로 일어나요.</p>
+    <div id="aiResult" class="ai-result" hidden></div>
+  </section>
+
+  <section class="panel">
+    <div class="chart-head">
+      <h2>전략 실험실</h2>
+      <button id="runLab" class="primary">전략 6개를 300번씩 돌려 보기</button>
+    </div>
+    <p class="small muted">같은 예산 10포인트를 30년 동안 고정해서 쓰면 2055년에 어떻게 될까요? 매번 랜덤 변동이 달라서 300번 돌린 가운데값과 범위(하위 10%~상위 10%)를 보여 줘요. 위에서 고른 가정(비관·보통·낙관, 악순환)이 그대로 적용돼요.</p>
+    <div class="table-wrap"><table id="lab"><thead><tr><th>전략</th><th>2055 총인구</th><th>2055 청년</th><th>소멸위험지수</th></tr></thead><tbody><tr><td colspan="4" class="muted" style="text-align:left">버튼을 누르면 결과가 나와요.</td></tr></tbody></table></div>
+    <p class="small" id="labNote"></p>
+  </section>
+
+  <section class="panel source-link">
+    <div>
+      <h2>출처와 원리</h2>
+      <p class="small muted">인구를 어떻게 예측하는지 애니메이션으로 보고, 과거 자료로 얼마나 정확한지, 무엇이 가정이고 어떤 자료를 썼는지 확인할 수 있어요.</p>
+    </div>
+    <button class="source-btn" id="openSources">출처와 원리 보기 →</button>
+  </section>
+</div>
+
+<div class="sources-view" id="sources" hidden role="dialog" aria-modal="true" aria-label="출처와 원리">
+  <div class="sources-bar">
+    <b>출처와 원리</b>
+    <button id="closeSources">✕ 게임으로 돌아가기</button>
+  </div>
+  <iframe id="sourcesFrame" title="출처와 원리"></iframe>
+</div>
+
+<div class="choice-overlay" id="choice" hidden role="dialog" aria-modal="true" aria-labelledby="chTitle">
+  <div class="choice-card">
+    <div id="chArt"></div>
+    <span class="choice-year num" id="chYear"></span>
+    <h2 id="chTitle"></h2>
+    <p id="chText"></p>
+    <p class="ch-basis" id="chBasis"></p>
+    <div class="choice-options" id="chOptions"></div>
+    <p class="small muted">효과 크기는 사례를 참고한 가정값이에요.</p>
+  </div>
+</div>
+
+<div class="result-overlay" id="result" hidden role="dialog" aria-modal="true" aria-label="임기 결과">
+  <div class="result-inner">
+    <div class="result-top">
+      <span class="small muted">임기 결과</span>
+      <button id="rClose">닫기 ✕</button>
+    </div>
+    <div class="r-slide" id="rSlide"></div>
+    <div class="result-nav">
+      <button id="rPrev">◀ 이전</button>
+      <div class="dots" id="rDots"></div>
+      <button id="rNext" class="primary">다음 ▶</button>
+    </div>
+  </div>
+</div>
+
+<script src="engine.js"></script>
+<script src="gamedata.js"></script>
+<script src="choices.js"></script>
+<script src="art.js"></script>
+<script src="tour.js"></script>
+<script>
+(function () {
+  const M = window.PopModel, D = window.GAME_DATA, C = window.Choices;
+  const P = M.POLICIES, IDS = Object.keys(P);
+  const START_YEAR = 2025, END_YEAR = 2055;
+  const $ = id => document.getElementById(id);
+  const fmt = n => Math.round(n).toLocaleString('ko-KR');
+
+  let game, timer = null, speed = 1, metric = 'total';
+  const alloc = { job: 3, bus: 3, med: 2, edu: 2 };
+
+  function newGame() {
+    game = {
+      year: START_YEAR, state: D.start, hist: [], seed: (Math.random() * 1e9) | 0,
+      series: [{ year: START_YEAR, ...M.stats(D.start) }], flags: {}, done: false,
+    };
+    game.rng = M.mulberry(game.seed);
+    game.mods = []; game.picks = []; game.choiceIdx = {}; game.pending = null;
+    $('choice').hidden = true;
+    game.startStats = M.stats(D.start);
+    $('log').innerHTML = '';
+    $('ending').hidden = true;
+    document.body.classList.remove('ai-playing');
+    addLog(START_YEAR, `${name()} 군수로 취임했어요. 인구 ${fmt(game.startStats.total)}명, 소멸위험지수 ${game.startStats.index.toFixed(3)} (소멸 고위험).`);
+    stop();
+    render();
+  }
+
+  const name = () => ($('countyName').value.trim() || '청솔군');
+
+  // 지금 고른 가정 (정책 효과, 악순환, 이동 시나리오)
+  function getOpts() { return { level: $('level').value, spiral: $('spiral').checked, scenario: $('scenario').value }; }
+
+  // 정책 없음 곡선: 고른 가정에 따라 다시 계산한다 (랜덤 없음)
+  let baseCache = {};
+  function baseline() {
+    const o = getOpts(), key = JSON.stringify(o);
+    if (baseCache[key]) return baseCache[key];
+    let st = D.start; const hist = [], out = [{ year: START_YEAR, ...M.stats(st) }];
+    for (let y = START_YEAR + 1; y <= END_YEAR; y++) { hist.push({}); st = M.yearStep(st, D.params, hist, o, null, D.start).state; out.push({ year: y, ...M.stats(st) }); }
+    return (baseCache[key] = out);
+  }
+
+  function addLog(year, text, kind) {
+    const li = document.createElement('li');
+    if (kind) li.className = kind;
+    li.innerHTML = `<span class="y">${year}</span><span class="t"></span>`;
+    li.querySelector('.t').textContent = text;
+    $('log').prepend(li);
+  }
+
+  function spent() { return IDS.reduce((s, id) => s + alloc[id], 0); }
+  function budget() { return C.active(game.mods, game.year).budget; }
+
+  // ---- 1년 진행 ----
+  function advance() {
+    if (game.done) return;
+    if (game.ai) {
+      const i = game.hist.length, a = game.ai.plan[i];
+      Object.assign(alloc, a);
+      if (i % 10 === 0) addLog(game.year, `AI가 앞으로 10년 배분을 정했어요: ${IDS.map(id => P[id].name + ' ' + a[id]).join(', ')}.`);
+    }
+    if (game.pending) return;
+    const act = C.active(game.mods, game.year);
+    Object.assign(alloc, C.trim(alloc, act.budget));
+    game.hist.push({ ...alloc });
+    const opts = { ...getOpts(), extra: act.extra, birthExtra: act.birth };
+    const prev = M.stats(game.state);
+    const r = M.yearStep(game.state, D.params, game.hist, opts, game.rng, D.start);
+    game.state = r.state;
+    game.year++;
+    const s = M.stats(game.state);
+    game.series.push({ year: game.year, ...s });
+    events(prev, s, r.shock);
+    if (game.year >= END_YEAR) finish();
+    else checkChoice();
+    render();
+  }
+
+  // ---- 선택 이벤트 ----
+  function checkChoice() {
+    const ev = C.CHOICES.find(e => e.year === game.year);
+    if (!ev) return;
+    if (game.ai) { aiChoose(ev); return; }
+    game.pending = ev;
+    game.resume = !!timer;
+    stop();
+    $('chArt').innerHTML = window.EventArt ? EventArt.svg(ev.year, ev.title) : '';
+    $('chTitle').textContent = ev.title;
+    $('chYear').textContent = ev.year + '년';
+    $('chText').textContent = ev.text;
+    $('chBasis').textContent = ev.basis ? '근거: ' + ev.basis : '';
+    $('chOptions').innerHTML = ev.options.map((o, i) =>
+      `<button class="choice" data-i="${i}"><b>${o.label}</b><span>${o.desc}</span></button>`).join('');
+    $('choice').hidden = false;
+    $('chOptions').querySelector('button').focus();
+  }
+
+  function choose(ev, i, note) {
+    const opt = ev.options[i];
+    C.apply(game, opt);
+    addLog(game.year, `[${ev.title}] '${opt.label}'을(를) 골랐어요.${note || ''}`, 'pick');
+    game.picks.push(`${ev.year} ${ev.title}: ${opt.label}`);
+    game.choiceIdx[ev.year] = i;
+  }
+
+  $('chOptions').addEventListener('click', e => {
+    const b = e.target.closest('button[data-i]');
+    if (!b || !game.pending) return;
+    const ev = game.pending;
+    game.pending = null;
+    $('choice').hidden = true;
+    choose(ev, +b.dataset.i);
+    render();
+    if (game.resume) play();
+  });
+
+  // AI: 선택지마다 남은 기간을 랜덤 없이 끝까지 돌려 보고 목표가 가장 좋은 쪽을 고른다
+  function aiChoose(ev) {
+    const goal = game.ai.goal;
+    const opts = { ...getOpts() };
+    const best = pickBest(ev, game, game.hist, game.ai.plan, opts, goal);
+    const scores = best.scores;
+    choose(ev, best.i, ` 다른 선택보다 2055년 ${GOALS[goal]}이(가) ${unitDiff(scores[best.i] - scores[1 - best.i], goal)} 더 좋을 거라고 계산했어요.`);
+  }
+
+  const unitDiff = (d, goal) => goal === 'index' ? d.toFixed(4) : fmt(d) + '명';
+
+  // 지금 상태에서 계획대로 2055년까지 랜덤 없이 굴린다 (그 뒤 이벤트는 없다고 보고)
+  function rollout(ctx, hist, plan, opts) {
+    hist = hist.slice();
+    let s = ctx.state;
+    for (let y = ctx.year; y < END_YEAR; y++) {
+      const act = C.active(ctx.mods, y);
+      hist.push(C.trim(plan[hist.length], act.budget));
+      s = M.yearStep(s, D.params, hist, { ...opts, extra: act.extra, birthExtra: act.birth }, null, D.start).state;
+    }
+    return M.stats(s);
+  }
+
+  // 선택지마다 끝까지 굴려 보고 목표가 더 좋은 쪽을 고른다
+  function pickBest(ev, ctx, hist, plan, opts, goal) {
+    const scores = ev.options.map(opt => {
+      const c = { state: JSON.parse(JSON.stringify(ctx.state)), mods: ctx.mods.slice(), year: ctx.year, flags: {} };
+      C.apply(c, opt);
+      return rollout(c, hist, plan, opts)[goal];
+    });
+    return { i: scores.indexOf(Math.max(...scores)), scores };
+  }
+
+  // 등급의 만점 기준: AI가 목표에 맞는 계획을 세우고 선택 이벤트도 모두 잘 고른 결과 (랜덤 없음)
+  function bestWithEvents(goal, opts) {
+    const plan = M.optimize(D.params, D.start, END_YEAR - START_YEAR, opts, goal).plan;
+    const ctx = { state: JSON.parse(JSON.stringify(D.start)), mods: [], year: START_YEAR, flags: {} };
+    const hist = [];
+    while (ctx.year < END_YEAR) {
+      const ev = C.CHOICES.find(e => e.year === ctx.year);
+      if (ev) C.apply(ctx, ev.options[pickBest(ev, ctx, hist, plan, opts, goal).i]);
+      const act = C.active(ctx.mods, ctx.year);
+      hist.push(C.trim(plan[hist.length], act.budget));
+      ctx.state = M.yearStep(ctx.state, D.params, hist, { ...opts, extra: act.extra, birthExtra: act.birth }, null, D.start).state;
+      ctx.year++;
+    }
+    return M.stats(ctx.state)[goal];
+  }
+
+  function events(prev, s, shock) {
+    const y = game.year, f = game.flags, st = game.startStats;
+    const recent = game.hist.slice(-3);
+    const avg = id => recent.reduce((a, h) => a + h[id], 0) / recent.length;
+    const firsts = {
+      job: '스마트팜 단지와 원격근무 거점이 문을 열었어요.',
+      bus: '부르면 오는 수요응답형 버스가 운행을 시작했어요.',
+      med: '보건진료소와 경로당에 원격협진 거점이 생겼어요.',
+      edu: '작은 학교끼리 잇는 원격 공동수업을 시작했어요.',
+    };
+    for (const id of IDS) if (!f[id] && avg(id) >= 2) { f[id] = true; addLog(y, firsts[id], 'good'); }
+    if (shock > 1.5 * M.NOISE) addLog(y, '귀농·귀촌 박람회가 흥행해서 올해 청년 전입이 평소보다 많았어요.', 'good');
+    if (shock < -1.5 * M.NOISE) addLog(y, '이웃 도시에 산업단지가 생겨 올해 청년이 평소보다 많이 떠났어요.', 'bad');
+    for (let t = 30000; t >= 10000; t -= 2500) {
+      if (prev.total >= t && s.total < t) addLog(y, `인구가 ${fmt(t)}명 아래로 내려갔어요.`, 'bad');
+    }
+    const kidDrop = Math.floor((1 - s.kids / st.kids) / 0.15);
+    if (kidDrop > (f.kidDrop || 0)) { f.kidDrop = kidDrop; addLog(y, `어린이가 2025년보다 ${kidDrop * 15}% 넘게 줄어 초등학교 한 곳이 문을 닫았어요.`, 'bad'); }
+    if (!f.i10 && s.index < 0.1) { f.i10 = true; addLog(y, '소멸위험지수가 0.1 아래로 떨어졌어요. 20~39세 여성이 노인의 10분의 1도 안 돼요.', 'bad'); }
+    if (!f.i05 && s.index < 0.05) { f.i05 = true; addLog(y, '소멸위험지수가 0.05 아래로 떨어졌어요.', 'bad'); }
+    if (y % 5 === 0) {
+      const base = baseline().find(b => b.year === y);
+      const diff = s.total - base.total;
+      addLog(y, `${y}년 결산: 인구 ${fmt(s.total)}명. 아무 정책도 안 썼을 때보다 ${diff >= 0 ? fmt(diff) + '명 많아요' : fmt(-diff) + '명 적어요'}.`);
+    }
+  }
+
+  function finish() {
+    game.done = true; stop();
+    const s = M.stats(game.state);
+    // 등급: 총인구와 소멸위험지수를 각각 '정책 없음 = 0점, 같은 가정에서 AI가 찾은 최고 = 100점'으로 바꿔 평균 낸다
+    const opts = { ...getOpts() };
+    const years = END_YEAR - START_YEAR;
+    const base = M.simulatePlan(D.params, D.start, Array(years).fill({}), opts);
+    game.best = { total: bestWithEvents('total', opts), index: bestWithEvents('index', opts) };
+    game.base = base;
+    // 등급은 운을 뺀 결정만으로 매긴다: 같은 결정을 랜덤 변동 없이 다시 돌린 결과
+    const calm = replay({ noise: false, opts });
+    const pTotal = points(calm, 'total'), pIndex = points(calm, 'index');
+    const avg = avgPoints(calm);
+    // 총인구 최고와 지수 최고는 서로 다른 전략이라 둘 다 100점은 어렵다. 둘을 잘 섞으면 85점 근처까지 간다.
+    const grade = avg >= 85 ? 'S' : avg >= 70 ? 'A' : avg >= 50 ? 'B' : avg >= 30 ? 'C' : 'D';
+    $('grade').textContent = grade;
+    $('endScores').innerHTML =
+      `<span><b class="num">${Math.round(pTotal)}</b>점 총인구</span><span><b class="num">${Math.round(pIndex)}</b>점 소멸위험지수</span><span class="muted">평균 ${avg.toFixed(1)}점</span>`;
+    $('endText').textContent =
+      `${name()}의 2055년 인구는 ${fmt(s.total)}명, 소멸위험지수는 ${s.index.toFixed(3)}이에요. ` +
+      `정책이 없었다면 인구 ${fmt(base.total)}명, 지수 ${base.index.toFixed(3)}이었을 거예요. ` +
+      `점수는 운(해마다의 랜덤 변동)을 빼고 매겨요. 같은 결정을 랜덤 없이 다시 돌리면 인구 ${fmt(calm.total)}명, 지수 ${calm.index.toFixed(3)}이에요. 정책 없음을 0점, 같은 가정에서 AI가 예산과 선택 이벤트를 모두 최선으로 골랐을 때를 100점으로 잡았어요.` +
+      (game.flags.merged ? ` ${name()}은(는) 2037년에 이웃 시와 통합했어요.` : '') +
+      (game.picks.length ? ` 고른 선택: ${game.picks.map(p => p.split(': ')[1]).join(', ')}.` : '');
+    if (game.ai) {
+      $('endTitle').innerHTML = '2055년, AI 군수의 임기가 끝났어요<span class="badge-ai">AI</span>';
+      document.body.classList.remove('ai-playing');
+    } else {
+      $('endTitle').textContent = '2055년, 30년의 임기가 끝났어요';
+    }
+    $('ending').hidden = false;
+    addLog(END_YEAR, `임기 종료. 등급 ${grade}.`);
+    renderReview(s, base, opts, { grade, pTotal, pIndex, avg });
+  }
+
+  // ---- 내 임기 돌아보기 ----
+  // 정책 없음 = 0점, AI 최선 = 100점
+  const points = (st, goal) => (st[goal] - game.base[goal]) / (game.best[goal] - game.base[goal]) * 100;
+  const avgPoints = st => (points(st, 'total') + points(st, 'index')) / 2;
+
+  // 이번 판을 그대로 다시 돌린다. 같은 시드를 쓰면 해마다의 운이 똑같아서, 바꾼 것 하나의 효과만 남는다.
+  function replay({ picks = game.choiceIdx, hist = game.hist, seed = game.seed, noise = true, opts }) {
+    const rng = noise ? M.mulberry(seed) : null;
+    const ctx = { state: JSON.parse(JSON.stringify(D.start)), mods: [], year: START_YEAR, flags: {} };
+    const h = [];
+    while (ctx.year < END_YEAR) {
+      const ev = C.CHOICES.find(e => e.year === ctx.year);
+      if (ev && picks[ev.year] !== undefined) C.apply(ctx, ev.options[picks[ev.year]]);
+      const act = C.active(ctx.mods, ctx.year);
+      h.push(C.trim(hist[h.length], act.budget));
+      ctx.state = M.yearStep(ctx.state, D.params, h, { ...opts, extra: act.extra, birthExtra: act.birth }, rng, D.start).state;
+      ctx.year++;
+    }
+    return M.stats(ctx.state);
+  }
+
+  const signed = (v, f) => (v >= 0 ? '+' : '−') + f(Math.abs(v));
+  const people = v => signed(v, x => fmt(x) + '명');
+  const idx = v => signed(v, x => x.toFixed(3));
+
+  function renderReview(real, base, opts, sum) {
+    // 다시 돌린 결과가 실제 판과 같아야 비교가 의미 있다 (도중에 가정을 바꾸면 달라질 수 있음)
+    const same = replay({ opts });
+    if (Math.abs(same.total - real.total) > 0.5) console.warn('다시 돌린 결과가 실제와 달라요', same.total, real.total);
+    // 비교는 모두 운을 뺀 결과끼리 한다 (등급과 같은 기준)
+    const s = replay({ noise: false, opts });
+
+    // 1) 선택 이벤트: 그 선택만 반대로 바꿨다면
+    const evRows = C.CHOICES.filter(ev => game.choiceIdx[ev.year] !== undefined).map(ev => {
+      const mine = game.choiceIdx[ev.year];
+      const alt = replay({ picks: { ...game.choiceIdx, [ev.year]: 1 - mine }, noise: false, opts });
+      const res = [];
+      res[mine] = s; res[1 - mine] = alt;
+      const dPts = avgPoints(s) - avgPoints(alt);
+      return { ev, mine, res, dT: s.total - alt.total, dI: s.index - alt.index, dPts, bestIdx: dPts >= 0 ? mine : 1 - mine };
+    });
+    // 2) 예산 분야: 그 분야에 쓴 돈을 0으로 했다면
+    const fieldRows = IDS.map(id => {
+      const alt = replay({ hist: game.hist.map(a => ({ ...a, [id]: 0 })), noise: false, opts });
+      const spent = game.hist.reduce((a, h) => a + h[id], 0);
+      return { id, spent, dT: s.total - alt.total, dI: s.index - alt.index };
+    });
+    // 3) 운: 같은 선택을 랜덤 없이 / 다른 운 200번
+    const calm = s;
+    const others = Array.from({ length: 200 }, (_, k) => replay({ seed: 7919 * (k + 1), opts }).total).sort((a, b) => a - b);
+    const rank = Math.round(others.filter(v => v < real.total).length / others.length * 100);
+    // 4) AI: 총인구와 지수 점수 합이 가장 높은 계획 (선택 이벤트 없이)
+    const aiPlan = M.optimize(D.params, D.start, END_YEAR - START_YEAR, opts, st => points(st, 'total') + points(st, 'index')).blocks;
+    // 5) 예산 배분 평가: 10년 구간 하나만 최선의 배분(등급 기준)으로 바꾸고, 선택과 운은 그대로 두고 다시 돌린다
+    const withAI = blocks => game.hist.map((a, i) => blocks.includes(Math.floor(i / 10)) ? aiPlan[Math.floor(i / 10)] : a);
+    const budRows = aiPlan.map((ai, b) => {
+      const alt = replay({ hist: withAI([b]), noise: false, opts });
+      return { b, ai, alt, dPts: avgPoints(s) - avgPoints(alt), dT: s.total - alt.total, dI: s.index - alt.index };
+    });
+    const allAI = replay({ hist: withAI([0, 1, 2]), noise: false, opts });
+    const budAll = avgPoints(s) - avgPoints(allAI);
+    const budGood = budRows.filter(r => r.dPts >= -1).length;
+
+    const good = evRows.filter(r => r.bestIdx === r.mine).length;
+    const missed = evRows.filter(r => r.bestIdx !== r.mine);
+    const lost = missed.reduce((a, r) => a - r.dPts, 0);
+
+    // ---- 슬라이드 ----
+    const slides = [];
+    slides.push(() => `
+      <div class="r-hero">
+        <span class="eyebrow">2055년 · ${game.ai ? 'AI 군수' : name() + ' 군수'}의 30년</span>
+        <div class="r-grade">${sum.grade}</div>
+        <div class="end-scores"><span><b class="num">${Math.round(sum.pTotal)}</b>점 총인구</span><span><b class="num">${Math.round(sum.pIndex)}</b>점 소멸위험지수</span><span class="muted">평균 ${sum.avg.toFixed(1)}점</span></div>
+        <p>2055년 인구 <b>${fmt(real.total)}명</b>, 소멸위험지수 <b>${real.index.toFixed(3)}</b>. 운을 빼면 ${fmt(s.total)}명, ${s.index.toFixed(3)}이고, 정책이 없었다면 ${fmt(base.total)}명, ${base.index.toFixed(3)}이었어요.</p>
+        <p>선택 ${evRows.length}번 중 <b>${good}번</b>이 최고의 결정이었어요.${missed.length ? ` 나머지까지 모두 최고로 골랐다면 평균 점수가 약 ${lost.toFixed(0)}점 더 높았을 거예요.` : ''}</p>
+        <p>예산 배분은 10년 구간 3개 중 <b>${budGood}개</b>가 최선의 배분만큼 좋았어요. ${budAll >= -1
+          ? `30년 동안의 배분이 최선의 배분${budAll > 1 ? `보다 평균 ${budAll.toFixed(1)}점 더 좋았어요` : '과 거의 같은 효과를 냈어요'}.`
+          : `30년 내내 최선으로 나눴다면 평균 점수가 ${(-budAll).toFixed(1)}점 더 높았을 거예요.`}</p>
+        <p class="small muted">등급은 운을 뺀 결과로 매겨요. 0점은 정책 없음, 100점은 같은 가정에서 AI가 예산과 선택을 모두 최선으로 골랐을 때예요. 다음 화면부터 선택을 하나씩 돌아봐요.</p>
+      </div>`);
+    evRows.forEach((r, n) => slides.push(() => {
+      const card = i => {
+        const st = r.res[i], isMine = i === r.mine, isBest = i === r.bestIdx;
+        return `<div class="opt-card${isMine ? ' mine' : ''}${isBest ? ' best' : ''}">
+          <div class="opt-tags">${isMine ? '<span class="tag mine">내 선택</span>' : '<span class="tag">다른 선택</span>'}${isBest ? '<span class="tag best">최고의 결정</span>' : ''}</div>
+          <b class="opt-label">${r.ev.options[i].label}</b>
+          <span class="small muted">${r.ev.options[i].desc}</span>
+          <dl class="opt-res">
+            <div><dt>2055년 인구</dt><dd class="num">${fmt(st.total)}명</dd></div>
+            <div><dt>소멸위험지수</dt><dd class="num">${st.index.toFixed(3)}</dd></div>
+            <div><dt>평균 점수</dt><dd class="num">${avgPoints(st).toFixed(1)}점</dd></div>
+          </dl>
+        </div>`;
+      };
+      const msg = r.bestIdx === r.mine
+        ? `<p class="verdict good">최고의 결정이었어요. 다른 선택보다 평균 점수 <b>+${r.dPts.toFixed(1)}점</b> (인구 ${people(r.dT)}, 지수 ${idx(r.dI)})</p>`
+        : `<p class="verdict bad">아쉬운 선택이었어요. '${r.ev.options[1 - r.mine].label}'을(를) 골랐다면 평균 점수 <b>+${(-r.dPts).toFixed(1)}점</b> (인구 ${people(-r.dT)}, 지수 ${idx(-r.dI)})</p>`;
+      const small = Math.abs(r.dPts) < 1 ? '<p class="small muted">다만 차이가 1점도 안 돼서 어느 쪽이든 큰 차이는 없었어요.</p>' : '';
+      const note = r.dT > 0 && r.dI < 0 ? '<p class="small muted">내 선택은 인구는 더 지켰지만 소멸위험지수는 떨어뜨렸어요. 어르신을 지키는 선택은 인구에, 청년을 지키는 선택은 지수에 도움이 돼요.</p>'
+        : r.dT < 0 && r.dI > 0 ? '<p class="small muted">내 선택은 인구는 조금 줄였지만 소멸위험지수는 올렸어요. 청년 비율이 높아졌다는 뜻이에요.</p>' : '';
+      return `
+        <span class="eyebrow">${r.ev.year}년 · 선택 ${n + 1} / ${evRows.length}</span>
+        <h2>${r.ev.title}</h2>
+        <p class="muted">${r.ev.text}</p>
+        ${r.ev.basis ? `<p class="ch-basis">근거: ${r.ev.basis}</p>` : ''}
+        <div class="opt-compare">${card(r.mine)}${card(1 - r.mine)}</div>
+        ${msg}${small}${note}`;
+    }));
+    const maxField = Math.max(1, ...fieldRows.map(f => Math.abs(f.dT)));
+    const decade = b => {
+      const part = game.hist.slice(b * 10, b * 10 + 10), out = {};
+      for (const id of IDS) out[id] = part.reduce((a, h) => a + h[id], 0) / Math.max(1, part.length);
+      return out;
+    };
+    const splitBar = a => `<div class="split">${IDS.map(id => `<i style="width:${a[id] * 10}%;background:var(${COLORS[id]})"></i>`).join('')}</div>`;
+    const diffText = (mine, ai) => {
+      const d = IDS.map(id => [id, mine[id] - ai[id]]).filter(([, v]) => Math.abs(v) >= 1).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
+      return d.length ? d.slice(0, 2).map(([id, v]) => `${P[id].name}에 최선의 배분보다 ${Math.abs(v).toFixed(0)}포인트 ${v > 0 ? '더' : '덜'}`).join(', ') + ' 썼어요.' : '최선의 배분과 거의 같게 나눴어요.';
+    };
+    const allocText = a => IDS.filter(id => a[id] >= 0.05).map(id => `${P[id].name} ${(+a[id].toFixed(1))}`).join(' · ') || '투자 없음';
+    budRows.forEach(r => slides.push(() => {
+      const mine = decade(r.b), better = r.dPts >= -1;
+      const from = START_YEAR + r.b * 10, to = from + 10;
+      const card = (label, a, st, isMine, isBest) => `<div class="opt-card${isMine ? ' mine' : ''}${isBest ? ' best' : ''}">
+          <div class="opt-tags"><span class="tag${isMine ? ' mine' : ''}">${label}</span>${isBest ? '<span class="tag best">더 나은 배분</span>' : ''}</div>
+          ${splitBar(a)}
+          <span class="small">한 해 평균 ${allocText(a)}</span>
+          <dl class="opt-res">
+            <div><dt>2055년 인구</dt><dd class="num">${fmt(st.total)}명</dd></div>
+            <div><dt>소멸위험지수</dt><dd class="num">${st.index.toFixed(3)}</dd></div>
+            <div><dt>평균 점수</dt><dd class="num">${avgPoints(st).toFixed(1)}점</dd></div>
+          </dl>
+        </div>`;
+      const msg = r.dPts > 1
+        ? `<p class="verdict good">최선의 배분보다 잘 나눴어요. 평균 점수 <b>+${r.dPts.toFixed(1)}점</b> (인구 ${people(r.dT)}, 지수 ${idx(r.dI)})</p>`
+        : better
+          ? `<p class="verdict good">최선에 가깝게 나눴어요. 차이는 평균 점수 ${signed(r.dPts, x => x.toFixed(1) + '점')}이에요.</p>`
+          : `<p class="verdict bad">아쉬운 배분이었어요. 이 10년을 최선으로 나눴다면 평균 점수 <b>+${(-r.dPts).toFixed(1)}점</b> (인구 ${people(-r.dT)}, 지수 ${idx(-r.dI)})</p>`;
+      return `
+        <span class="eyebrow">${from}~${to}년 · 예산 배분 ${r.b + 1} / ${budRows.length}</span>
+        <h2>${from}~${to}년의 기술 예산</h2>
+        <p class="muted">이 10년만 최선의 배분으로 바꾸고, 선택 이벤트는 그대로 둔 채 운을 빼고 다시 돌려 봤어요. ${diffText(mine, r.ai)}</p>
+        <div class="opt-compare">${card('내 배분', mine, s, true, better)}${card('최선의 배분', r.ai, r.alt, false, !better)}</div>
+        ${msg}
+        <div class="legend">${IDS.map(id => `<span style="--c: var(${COLORS[id]})">${P[id].name}</span>`).join('')}</div>
+        <p class="small muted">최선의 배분은 총인구 점수와 지수 점수의 합(등급 기준)이 가장 높아지도록 286가지 배분을 모두 시험해 찾은 계획이에요(선택 이벤트는 빼고 계산). 'AI 군수에게 맡기기'는 목표 하나만 노리기 때문에 이 배분과 다를 수 있어요. 예산이 줄어든 해에는 많이 넣은 분야부터 줄여서 적용했어요.</p>`;
+    }));
+    slides.push(() => `
+      <span class="eyebrow">예산 돌아보기</span>
+      <h2>어떤 분야가 군을 지켰을까?</h2>
+      <p class="small muted">분야마다 30년 동안 쓴 돈을 0으로 하고 운을 뺀 채 다시 돌려 본 차이예요.</p>
+      <div class="fields">${fieldRows.map(f => `
+        <div class="field-row">
+          <span class="fname">${P[f.id].name}<span class="range">30년 동안 ${f.spent}포인트</span></span>
+          <div class="fbar"><i class="${f.dT >= 0 ? 'pos' : 'neg'}" style="width:${Math.abs(f.dT) / maxField * 100}%"></i></div>
+          <span class="fval num">${people(f.dT)}<span class="range">지수 ${idx(f.dI)}</span></span>
+        </div>`).join('')}</div>
+      <p class="small muted">막대가 길수록 그 분야 투자가 인구를 많이 지켰다는 뜻이에요. 같은 포인트를 써도 분야마다 효과가 달라요.</p>`);
+    slides.push(() => `
+      <span class="eyebrow">운 돌아보기</span>
+      <h2>운은 얼마나 작용했을까?</h2>
+      <p>랜덤 변동이 없었다면 2055년 인구는 ${fmt(calm.total)}명이었어요. 실제 결과는 ${fmt(real.total)}명이라, 이번 판은 운 때문에 <b>${people(real.total - calm.total)}</b>이 달라졌어요. 등급은 운을 뺀 결과로 매겼어요.</p>
+      <p>같은 선택으로 운만 바꿔 200번 돌리면 ${fmt(others[20])}~${fmt(others[179])}명 사이이고, 이번 결과는 그중 <b>상위 ${Math.max(1, 100 - rank)}%</b>예요.</p>
+      <p class="small muted">선택과 예산 비교는 모두 운(랜덤 변동)을 빼고 한 가지만 바꿔 다시 돌린 결과예요. 선택끼리 서로 영향을 주기 때문에 효과를 모두 더해도 전체 차이와 정확히 같지는 않아요. 선택 이벤트와 정책 효과는 게임의 가정값이에요.</p>
+      <div class="nav-end"><button id="rAgain" class="primary">새 임기 시작</button><button id="rDone">결과 화면 닫기</button></div>`);
+    game.slides = slides;
+    openResult(0);
+  }
+
+  // ---- 결과 화면 (페이지를 덮는 슬라이드) ----
+  let slideAt = 0;
+  function openResult(i) {
+    if (!game.slides) return;
+    slideAt = Math.max(0, Math.min(game.slides.length - 1, i));
+    const box = $('rSlide');
+    box.innerHTML = game.slides[slideAt]();
+    box.classList.remove('in'); void box.offsetWidth; box.classList.add('in');
+    $('rDots').innerHTML = game.slides.map((_, j) => `<button class="dot${j === slideAt ? ' on' : ''}" data-j="${j}" aria-label="${j + 1}번째 화면"></button>`).join('');
+    $('rPrev').disabled = slideAt === 0;
+    $('rNext').hidden = slideAt === game.slides.length - 1;
+    $('result').hidden = false;
+    $('result').scrollTop = 0;
+    const again = $('rAgain'), done = $('rDone');
+    if (again) again.onclick = () => { closeResult(); newGame(); };
+    if (done) done.onclick = closeResult;
+  }
+  function closeResult() { $('result').hidden = true; }
+  $('rPrev').onclick = () => openResult(slideAt - 1);
+  $('rNext').onclick = () => openResult(slideAt + 1);
+  $('rClose').onclick = closeResult;
+  $('rDots').addEventListener('click', e => { const d = e.target.closest('[data-j]'); if (d) openResult(+d.dataset.j); });
+  $('reopen').onclick = () => openResult(0);
+  document.addEventListener('keydown', e => {
+    if ($('result').hidden) return;
+    if (e.key === 'ArrowRight') openResult(slideAt + 1);
+    else if (e.key === 'ArrowLeft') openResult(slideAt - 1);
+    else if (e.key === 'Escape') closeResult();
+  });
+
+  // ---- AI 군수 ----
+  const COLORS = { job: '--field', bus: '--base', med: '--danger', edu: '--lamp' };
+  const GOALS = { young: '청년', total: '총인구', index: '소멸위험지수' };
+
+  function runAI() {
+    const goal = $('aiGoal').value;
+    const opts = { ...getOpts() };
+    const r = M.optimize(D.params, D.start, END_YEAR - START_YEAR, opts, goal);
+    const base = baseline()[baseline().length - 1];
+    const val = v => goal === 'index' ? v.toFixed(3) : fmt(v) + '명';
+    const constScore = r.constant.score;
+    const blockHtml = r.blocks.map((a, b) => {
+      const from = START_YEAR + b * 10, to = from + 10;
+      return `<div class="ai-block">
+        <span class="period">${from}~${to}년</span>
+        <div class="split">${IDS.map(id => `<i style="width:${a[id] * 10}%;background:var(${COLORS[id]})"></i>`).join('')}</div>
+        <div class="parts">${IDS.filter(id => a[id]).map(id => `<span style="--c:var(${COLORS[id]})">${P[id].name} ${a[id]}</span>`).join('')}</div>
+      </div>`;
+    }).join('');
+    $('aiResult').innerHTML = blockHtml +
+      `<p class="ai-summary">목표는 <b>2055년 ${GOALS[goal]}</b>. 시뮬레이션을 ${fmt(r.tried)}번 돌려서 찾았어요. ` +
+      `평균 경로로 ${val(r.score)} (정책 없음 ${val(base[goal])}). ` +
+      `30년 내내 같은 배분을 쓰면 최고는 ${IDS.map(id => P[id].name + ' ' + r.constant.alloc[id]).join('·')}로 ${val(constScore)}이고, ` +
+      `구간마다 배분을 바꾸면 ${goal === 'index' ? '조금' : fmt(r.score - constScore) + '명'} 더 좋아져요.</p>`;
+    $('aiResult').hidden = false;
+    newGame();
+    game.ai = { ...r, goal };
+    document.body.classList.add('ai-playing');
+    addLog(START_YEAR, `AI 군수가 취임했어요. 목표: 2055년 ${GOALS[goal]} 최대.`);
+    if (speed < 4) document.querySelector('[data-speed="4"]').click();
+    play();
+  }
+
+  function runMany(a, n) {
+    const opts = { ...getOpts() };
+    const rng = M.mulberry(12345);
+    const t = [], y = [], ix = [];
+    // a: 한 가지 배분(30년 고정) 또는 해마다의 배분 배열
+    const plan = Array.isArray(a) ? a : Array(END_YEAR - START_YEAR).fill(a);
+    for (let i = 0; i < n; i++) {
+      const s = M.simulatePlan(D.params, D.start, plan, opts, rng);
+      t.push(s.total); y.push(s.young); ix.push(s.index);
+    }
+    const q = arr => { arr.sort((p, q) => p - q); return { lo: arr[Math.floor(n * .1)], mid: arr[Math.floor(n * .5)], hi: arr[Math.floor(n * .9)] }; };
+    return { total: q(t), young: q(y), index: q(ix) };
+  }
+
+  // ---- 화면 ----
+  function render() {
+    const s = M.stats(game.state), st = game.startStats;
+    $('year').textContent = game.year;
+    $('yearLeft').textContent = game.done ? '임기 종료' : `${END_YEAR - game.year}년 남음`;
+    $('sTotal').textContent = fmt(s.total);
+    $('sIndex').textContent = s.index.toFixed(3);
+    $('sGrade').innerHTML = s.index < 0.2 ? '<span class="pill danger">소멸 고위험</span>' : s.index < 0.5 ? '<span class="pill warn">소멸위험</span>' : '';
+    $('sYoung').textContent = fmt(s.young);
+    $('sKids').textContent = fmt(s.kids);
+    $('sOld').textContent = (s.oldShare * 100).toFixed(1) + '%';
+    delta('dTotal', s.total, st.total); delta('dYoung', s.young, st.young); delta('dKids', s.kids, st.kids);
+    renderPolicies();
+    drawChart();
+    drawVillage(s.total);
+  }
+
+  function delta(id, v, base) {
+    const d = (v - base) / base * 100;
+    const el = $(id);
+    el.textContent = game.year === START_YEAR ? '2025년 기준' : `2025년 대비 ${d >= 0 ? '+' : ''}${d.toFixed(1)}%`;
+    el.className = 'delta ' + (game.year === START_YEAR ? 'muted' : d >= 0 ? 'up' : 'down');
+  }
+
+  function renderPolicies() {
+    const box = $('policies');
+    if (!box.childElementCount) {
+      for (const id of IDS) {
+        const row = document.createElement('div');
+        row.className = 'policy';
+        row.innerHTML = `
+          <div><div class="name">${P[id].name}</div><div class="tech">${P[id].tech}</div></div>
+          <div class="stepper">
+            <button aria-label="${P[id].name} 줄이기" data-id="${id}" data-d="-1">−</button>
+            <span class="num" id="v_${id}">0</span>
+            <button aria-label="${P[id].name} 늘리기" data-id="${id}" data-d="1">+</button>
+          </div>
+          <div class="bar" id="b_${id}">${'<i></i>'.repeat(10)}</div>`;
+        box.append(row);
+      }
+      box.addEventListener('click', e => {
+        const b = e.target.closest('button[data-id]');
+        if (!b) return;
+        const id = b.dataset.id, d = +b.dataset.d;
+        if (d > 0 && spent() >= budget()) return;
+        alloc[id] = Math.max(0, Math.min(10, alloc[id] + d));
+        renderPolicies();
+      });
+    }
+    const recent = game.hist.slice(-3);
+    for (const id of IDS) {
+      $('v_' + id).textContent = alloc[id];
+      const settled = recent.length ? recent.reduce((a, h) => a + h[id], 0) / recent.length : 0;
+      [...$('b_' + id).children].forEach((cell, i) => {
+        cell.className = i < Math.min(alloc[id], settled) ? 'on' : i < alloc[id] ? 'ramp' : '';
+      });
+    }
+    const b = budget();
+    if (spent() > b) Object.assign(alloc, C.trim(alloc, b));
+    $('left').textContent = b - spent();
+    $('budgetTotal').textContent = b;
+  }
+
+  function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+  function drawChart() {
+    const svg = $('chart');
+    const W = 640, H = 280, L = 56, R = 16, T = 14, B = 30;
+    const get = r => r[metric];
+    const all = [...D.history, ...baseline(), ...game.series].map(get);
+    let lo = Math.min(...all), hi = Math.max(...all);
+    let ticks = 4;
+    if (metric !== 'index') {
+      // 눈금이 4~6개가 되는 가장 촘촘한 간격을 고른다
+      const stepSize = [500, 1000, 2000, 2500, 5000, 10000].find(s => (hi - Math.floor(lo / s) * s) / s <= 6) || 10000;
+      lo = Math.floor(lo / stepSize) * stepSize;
+      ticks = Math.max(4, Math.ceil((hi - lo) / stepSize));
+      hi = lo + ticks * stepSize;
+    }
+    else { lo = 0; hi = Math.ceil(hi * 20) / 20; }
+    const x = yr => L + (yr - 2010) / (END_YEAR - 2010) * (W - L - R);
+    const y = v => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
+    const path = rows => rows.map((r, i) => (i ? 'L' : 'M') + x(r.year).toFixed(1) + ' ' + y(get(r)).toFixed(1)).join(' ');
+    const parts = [];
+    for (let i = 0; i <= ticks; i++) {
+      const v = lo + (hi - lo) * i / ticks;
+      parts.push(`<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="${css('--line')}" stroke-width="1"/>`);
+      parts.push(`<text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${metric === 'index' ? v.toFixed(2) : fmt(v)}</text>`);
+    }
+    for (let yr = 2010; yr <= END_YEAR; yr += 5) parts.push(`<text x="${x(yr)}" y="${H - 8}" text-anchor="middle">${yr}</text>`);
+    parts.push(`<line x1="${x(2025)}" x2="${x(2025)}" y1="${T}" y2="${H - B}" stroke="${css('--muted')}" stroke-dasharray="3 4"/>`);
+    parts.push(`<text x="${x(2025) + 4}" y="${T + 10}">지금부터 예측</text>`);
+    parts.push(`<path d="${path(D.history)}" fill="none" stroke="${css('--muted')}" stroke-width="2.5"/>`);
+    parts.push(`<path d="${path(baseline())}" fill="none" stroke="${css('--base')}" stroke-width="2" stroke-dasharray="6 4"/>`);
+    parts.push(`<path d="${path(game.series)}" fill="none" stroke="${css('--lamp')}" stroke-width="3"/>`);
+    const last = game.series[game.series.length - 1];
+    parts.push(`<circle cx="${x(last.year)}" cy="${y(get(last))}" r="4.5" fill="${css('--lamp')}"/>`);
+    svg.innerHTML = parts.join('');
+  }
+
+  // 마을 불빛: 2025년 집 수만큼 집을 그리고, 인구가 줄면 정해진 순서대로 불이 꺼진다
+  const houses = (() => {
+    const rng = M.mulberry(2025), n = Math.round(D.start.m.concat(D.start.f).reduce((a, b) => a + b) / 100);
+    const list = [];
+    for (let i = 0; i < n; i++) {
+      // 읍내(가운데)에 많이, 면 지역(가장자리)에 드문드문
+      const town = rng() < 0.45;
+      const cx = town ? 0.5 + (rng() - 0.5) * 0.3 : rng();
+      const cy = town ? 0.55 + (rng() - 0.5) * 0.35 : 0.25 + rng() * 0.7;
+      list.push({ x: cx, y: cy, order: (town ? 0.6 : 0) + rng(), s: 0.7 + rng() * 0.6 });
+    }
+    // 면 지역부터 불이 꺼지도록 정렬 (order가 낮을수록 먼저 꺼짐)
+    return list.sort((a, b) => a.order - b.order);
+  })();
+
+  function drawVillage(total) {
+    const cv = $('village'), box = cv.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    cv.width = box.width * dpr; cv.height = box.height * dpr;
+    const c = cv.getContext('2d');
+    c.scale(dpr, dpr);
+    const w = box.width, h = box.height;
+    c.fillStyle = css('--night'); c.fillRect(0, 0, w, h);
+    // 산 능선
+    c.fillStyle = 'rgba(255,255,255,0.05)';
+    c.beginPath(); c.moveTo(0, h * 0.3);
+    for (let i = 0; i <= 10; i++) c.lineTo(w * i / 10, h * (0.18 + 0.1 * Math.sin(i * 1.7)));
+    c.lineTo(w, 0); c.lineTo(0, 0); c.fill();
+    // 길
+    c.strokeStyle = 'rgba(255,255,255,0.08)'; c.lineWidth = 2;
+    c.beginPath(); c.moveTo(0, h * 0.62); c.bezierCurveTo(w * 0.3, h * 0.5, w * 0.6, h * 0.75, w, h * 0.58); c.stroke();
+    const lit = Math.round(total / 100), dark = houses.length - lit;
+    const lamp = css('--lamp');
+    houses.forEach((p, i) => {
+      const on = i >= dark;
+      const size = (Math.max(4, w / 90)) * p.s;
+      const px = p.x * (w - 20) + 10, py = p.y * (h - 30) + 10;
+      if (on) {
+        c.fillStyle = lamp; c.globalAlpha = 0.18;
+        c.beginPath(); c.arc(px, py, size * 1.6, 0, Math.PI * 2); c.fill();
+        c.globalAlpha = 1;
+      }
+      c.fillStyle = on ? lamp : 'rgba(255,255,255,0.12)';
+      c.fillRect(px - size / 2, py - size / 2, size, size * 0.8);
+    });
+    c.globalAlpha = 1;
+  }
+
+  // ---- 전략 실험실 ----
+  function runLab() {
+    const strategies = [
+      ['정책 없음', {}],
+      ['일자리에 10', { job: 10 }],
+      ['교통에 10', { bus: 10 }],
+      ['의료에 10', { med: 10 }],
+      ['교육에 10', { edu: 10 }],
+      ['골고루 4·2·2·2', { job: 4, bus: 2, med: 2, edu: 2 }],
+      ['지금 내 배분', { ...alloc }],
+    ];
+    const res = strategies.map(([n, a]) => [n, runMany(a, 300)]);
+    const best = k => Math.max(...res.slice(1, 6).map(r => r[1][k].mid));
+    const cell = (r, k, f) => `<td class="${r[0] !== '정책 없음' && r[0] !== '지금 내 배분' && r[1][k].mid === best(k) ? 'best' : ''}">${f(r[1][k].mid)}<span class="range">${f(r[1][k].lo)} ~ ${f(r[1][k].hi)}</span></td>`;
+    $('lab').tBodies[0].innerHTML = res.map(r =>
+      `<tr><td>${r[0]}${r[0] === '지금 내 배분' ? ` <span class="muted small">(${IDS.map(id => P[id].name + ' ' + alloc[id]).join(', ')})</span>` : ''}</td>` +
+      cell(r, 'total', fmt) + cell(r, 'young', fmt) + cell(r, 'index', v => v.toFixed(3)) + '</tr>').join('');
+    const win = k => res.slice(1, 6).find(r => r[1][k].mid === best(k))[0];
+    $('labNote').textContent =
+      `다섯 가지 전략 중에서 총인구는 '${win('total')}', 청년은 '${win('young')}', 소멸위험지수는 '${win('index')}' 전략이 가장 좋아요(초록 글씨). ` +
+      `무엇을 성공 기준으로 보느냐에 따라 답이 달라져요. 모든 결과는 위에서 고른 가정에 따라 바뀌니, 가정을 바꿔 가며 다시 돌려 보세요.`;
+  }
+
+  // ---- 조작 ----
+  // 1×에서 1년은 2.8초
+  function play() {
+    if (game.done) newGame();
+    game.editing = false;
+    timer = setInterval(advance, 2800 / speed);
+    $('play').textContent = '❚❚ 일시정지';
+    syncEdit();
+  }
+  function stop() {
+    clearInterval(timer); timer = null;
+    $('play').textContent = game && game.done ? '▶ 새 임기' : '▶ 시작';
+    syncEdit();
+  }
+
+  // 시간이 흐르는 동안에는 예산 버튼이 잠기고, '예산 조정'을 누르면 멈췄다가 '조정 완료'로 다시 흐른다
+  function syncEdit() {
+    const b = $('editBudget');
+    document.body.classList.toggle('running', !!timer);
+    b.classList.toggle('editing', !!(game && game.editing));
+    b.disabled = !!(game && (game.ai || game.done)) || (!timer && !(game && game.editing));
+    b.textContent = game && game.editing ? '✓ 조정 완료 (다시 시작)' : timer ? '⏸ 예산 조정' : '멈춰 있어요. 바로 조정할 수 있어요';
+  }
+  $('editBudget').onclick = () => {
+    if (timer) { stop(); game.editing = true; syncEdit(); }
+    else if (game.editing) play();
+  };
+  $('play').onclick = () => (timer ? stop() : play());
+  $('stepBtn').onclick = () => { stop(); advance(); };
+  $('reset').onclick = newGame;
+  document.querySelectorAll('[data-speed]').forEach(b => b.onclick = () => {
+    speed = +b.dataset.speed;
+    document.querySelectorAll('[data-speed]').forEach(o => o.setAttribute('aria-pressed', o === b));
+    if (timer) { stop(); play(); }
+  });
+  document.querySelectorAll('[data-metric]').forEach(b => b.onclick = () => {
+    metric = b.dataset.metric;
+    document.querySelectorAll('[data-metric]').forEach(o => o.setAttribute('aria-pressed', o === b));
+    drawChart();
+  });
+  $('runLab').onclick = runLab;
+  ['level', 'spiral', 'scenario'].forEach(id => $(id).addEventListener('change', () => drawChart()));
+  $('aiRun').onclick = runAI;
+  window.addEventListener('resize', () => drawVillage(M.stats(game.state).total));
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', render);
+
+  // 처음 들어온 사람에게는 안내를 자동으로 보여 준다
+  const tour = Tour.create({ onOpen: () => { if (timer) stop(); } });
+  $('help').onclick = tour.open;
+
+  // ---- 출처와 원리 ----
+  function openSources() {
+    if (timer) stop();
+    const f = $('sourcesFrame');
+    if (!f.getAttribute('src')) f.setAttribute('src', 'explain.html');
+    $('sources').hidden = false;
+    $('closeSources').focus();
+  }
+  function closeSources() { $('sources').hidden = true; }
+  $('openSources').onclick = openSources;
+  $('closeSources').onclick = closeSources;
+  // 안쪽 페이지의 '돌아가기'와 Esc
+  window.addEventListener('message', e => { if (e.data && e.data.type === 'close-sources') closeSources(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('sources').hidden) closeSources(); });
+
+  newGame();
+  if (!tour.seen) tour.open();
+})();
+</script>

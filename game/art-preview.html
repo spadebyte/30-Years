@@ -1,0 +1,16 @@
+<meta charset="utf-8">
+<title>삽화 시안</title>
+<style>
+:root { --night: #1d2a33; --lamp: #d98e1f; --field: #2f6b4f; --danger: #b0413a; --bg: #e9eee8; --ink: #18231d; }
+@media (prefers-color-scheme: dark) { :root { --night: #0a1116; --lamp: #f2b84b; --field: #6fbf95; --danger: #e47c70; --bg: #0f1513; --ink: #e3eae5; } }
+body { background: var(--bg); color: var(--ink); font-family: "IBM Plex Sans KR", sans-serif; margin: 0; padding: 16px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px; }
+h3 { margin: 0 0 4px; font-size: 14px; }
+.event-art { width: 100%; height: auto; display: block; border-radius: 8px; }
+</style>
+<div class="grid" id="out"></div>
+<script src="art.js"></script>
+<script>
+const names = { 2027: '작은 학교의 통폐합', 2029: '데이터센터 유치 제안', 2031: '마지막 분만 병원', 2034: '청년이냐, 어르신이냐', 2037: '이웃 시와 행정 통합', 2041: '빈집 1,500채', 2045: '기록적인 폭우', 2049: '자율주행 버스 시범지역' };
+document.getElementById('out').innerHTML = Object.entries(names).map(([y, n]) => `<div><h3>${y} ${n}</h3>${EventArt.svg(+y, n)}</div>`).join('');
+</script>

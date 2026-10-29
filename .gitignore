@@ -1,0 +1,4 @@
+.claude/
+model/results.json
+node_modules/
+*.tmp
